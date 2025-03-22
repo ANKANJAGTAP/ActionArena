@@ -8,7 +8,7 @@ const InnerPlay = () => {
   useEffect(() => {
     const fetchGame = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/descgames/${id}`);
+        const response = await fetch(`https://royal-dyanna-actionarena-5457ef91.koyeb.app/descgames/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch game");
         }

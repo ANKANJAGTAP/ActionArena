@@ -36,7 +36,7 @@ function Profile() {
       return;
     }
 
-    fetch('http://localhost:5000/profile', {
+    fetch('https://royal-dyanna-actionarena-5457ef91.koyeb.app/profile', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
@@ -67,7 +67,7 @@ function Profile() {
     const token = localStorage.getItem('token');
     console.log(token);
     try {
-      const response = await fetch('http://localhost:5000/profile', {
+      const response = await fetch('https://royal-dyanna-actionarena-5457ef91.koyeb.app/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

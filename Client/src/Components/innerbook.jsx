@@ -11,7 +11,7 @@ const SanasBadmintonCourt = () => {
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/bookvenues/${id}`);
+        const response = await fetch(`https://royal-dyanna-actionarena-5457ef91.koyeb.app/bookvenues/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch venue");
         }

@@ -49,7 +49,7 @@ const Middle = () => {
   useEffect(() => {
     const fetchSports = async () => {
       try {
-        const response = await fetch("http://localhost:5000/sports");
+        const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/sports");
         if (!response.ok) {
           throw new Error("Failed to fetch sports");
         }
