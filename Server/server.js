@@ -20,12 +20,15 @@ dotenv.config();
 
 const app = express();
 const emailVerificationTokens = {}; 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "https://action-arena.vercel.app/",
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: [
+    "http://localhost:5173",  // Allow local development
+    "https://action-arena.vercel.app",  // Allow production frontend
+    "https://action-arena-git-main-ankanjagtaps-projects.vercel.app"  // Allow preview frontend
+  ],
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true
+}));
 app.use(express.json());
 app.use(bodyParser.json());
 connectDB();
