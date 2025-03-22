@@ -191,21 +191,57 @@ app.get("/api/trainers", async (req, res) => {
 });
 app.get("/check-email", async (req, res) => {
   const email = req.query.email;
-
-  // Regular expression to validate email format
+  
+  // Validate email syntax with regex
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
     return res.json({ valid: false, message: "Invalid email syntax" });
   }
 
-  const domain = email.split("@")[1];
+  // Generate a verification token
+  const verificationToken = crypto.randomBytes(16).toString("hex");
+  
+  // Store the token (ideally with an expiry timestamp)
+  emailVerificationTokens[email] = verificationToken;
+
+  // Configure your SMTP transporter (replace with your SMTP details)
+  const transporter = nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+  });
+
+  const mailOptions = {
+    from: '"ActionArena" <881bb8002@smtp-brevo.com>',
+    to: email,
+    subject: "Please verify your email address",
+    text: `Hello,\n\nPlease verify your email address by clicking the link below:\n\n` +
+          `https://yourapp.com/verify-email?email=${encodeURIComponent(email)}&token=${verificationToken}\n\n` +
+          `If you did not sign up for this account, please ignore this email.\n\nThanks!`
+  };
+  
 
   try {
-    // Check if domain is accessible by making a request to it
-    await axios.get(`https://${domain}`);
-    return res.json({ valid: true, message: "Valid email domain" });
+    await transporter.sendMail(mailOptions);
+    return res.json({ valid: true, message: "Verification email sent. Please check your inbox." });
   } catch (error) {
-    return res.json({ valid: false, message: "Invalid email domain" });
+    console.error("Error sending email:", error.message);
+    return res.json({ valid: false, message: "Failed to send verification email." });
+  }
+});
+
+app.get("/verify-email", (req, res) => {
+  const { email, token } = req.query;
+  if (emailVerificationTokens[email] && emailVerificationTokens[email] === token) {
+    // Mark the email as verified in your user database here
+    delete emailVerificationTokens[email]; // Remove token after verification
+    return res.json({ success: true, message: "Email successfully verified!" });
+  } else {
+    return res.json({ success: false, message: "Invalid or expired verification token." });
   }
 });
 
