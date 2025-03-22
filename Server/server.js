@@ -9,7 +9,9 @@ import User from './src/models/User.js';
 import signupRoute from './src/routes/Rsignup.js';
 import bodyParser from 'body-parser';
 import loginRoute from './src/routes/login.js';
-import authMiddleware from './src/Utils/authmiddleware.js'
+import authMiddleware from './src/Utils/authmiddleware.js';
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 import { time } from "console";
 
 dotenv.config();
