@@ -32,7 +32,7 @@ const VenueCard = ({ venue }) => {
         {venue.bookable ? (
           <span
             className="text-xs bg-green-500 text-white px-2 py-1 rounded-md mt-2 inline-block cursor-pointer"
-            onClick={() => window.location.href = `/book/${venue._id}`}
+            onClick={() => window.location.href = `https://action-arena.vercel.app/book/${venue._id}`}
           >
             Bookable
           </span>

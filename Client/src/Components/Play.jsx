@@ -111,7 +111,7 @@ const SportsComplexGrid = () => {
               {game.available ? (
                 <button
                   onClick={() =>
-                    (window.location.href = `/play/${game._id}`)
+                    (window.location.href = `https://action-arena.vercel.app/play/${game._id}`)
                   }
                   className="mt-4 w-full bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 cursor-pointer text-sm sm:text-base"
                 >
