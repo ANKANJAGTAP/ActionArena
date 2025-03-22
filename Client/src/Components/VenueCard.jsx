@@ -1,7 +1,9 @@
 import React from "react";
 import { FaStar } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const VenueCard = ({ venue }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden transition-transform transform hover:scale-105">
       <img
@@ -32,7 +34,7 @@ const VenueCard = ({ venue }) => {
         {venue.bookable ? (
           <span
             className="text-xs bg-green-500 text-white px-2 py-1 rounded-md mt-2 inline-block cursor-pointer"
-            onClick={() => window.location.href = `https://action-arena.vercel.app/book/${venue._id}`}
+            onClick={() => navigate(`/book/${venue._id}`)}
           >
             Bookable
           </span>

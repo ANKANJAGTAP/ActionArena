@@ -4,6 +4,7 @@ import axios from "axios";
 import { FaSearch } from "react-icons/fa";
 import VenueCard from "./VenueCard";
 import {jwtDecode} from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const Book = () => {
   const [venues, setVenues] = useState([]);

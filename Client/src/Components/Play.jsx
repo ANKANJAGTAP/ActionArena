@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import {jwtDecode} from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const SportsComplexGrid = () => {
+  const navigate = useNavigate();
+
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -110,9 +113,7 @@ const SportsComplexGrid = () => {
               </span>
               {game.available ? (
                 <button
-                  onClick={() =>
-                    (window.location.href = `https://action-arena.vercel.app/play/${game._id}`)
-                  }
+                onClick={() => navigate(`/play/${game._id}`)}
                   className="mt-4 w-full bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 cursor-pointer text-sm sm:text-base"
                 >
                   Book
