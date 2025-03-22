@@ -52,7 +52,7 @@ export default function SignupForm() {
     // Email Verification
     try {
       const emailCheckResponse = await fetch(
-        `http://localhost:5000/check-email?email=${encodeURIComponent(data.email)}`
+        `https://royal-dyanna-actionarena-5457ef91.koyeb.app/check-email?email=${encodeURIComponent(data.email)}`
       );
       const emailCheckData = await emailCheckResponse.json();
 
@@ -69,7 +69,7 @@ export default function SignupForm() {
 
     // Proceed with user registration
     try {
-      const response = await fetch("http://localhost:5000/user/register", {
+      const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
