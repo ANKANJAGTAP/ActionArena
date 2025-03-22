@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "./Components/Navbar";
 import Home from "./Components/Home";
 import Middle from "./Components/Middle";
 import Partner from "./Components/Partner";
 import Last from "./Components/last";
 import Play from "./Components/Play";
-import { Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import Book from "./Components/book";
 import Train from "./Components/train";
 import Footer from "./Components/footer";
@@ -15,13 +15,19 @@ import Login from "./Components/login";
 import Profile from "./Components/profile";
 import InnerPlay from "./Components/innerplay";
 import InnerBook from "./Components/innerbook";
-import Booknow from   "./Components/booksuccess"
-
-
-
+import Booknow from "./Components/booksuccess";
+import LandingPage from "./Components/Landing"; // Landing modal component
 
 function App() {
-  const location = useLocation(); // Get current location for animation
+  const location = useLocation();
+  const token = localStorage.getItem("token");
+  // Show landing modal only if there is no token (i.e., user is not logged in)
+  const [showLanding, setShowLanding] = useState(!token);
+
+  // Callback to dismiss landing modal
+  const handleCloseLanding = () => {
+    setShowLanding(false);
+  };
 
   return (
     <div
@@ -34,9 +40,10 @@ function App() {
         marginTop: "2vh",
       }}
     >
-      {/* Translate Component */}
-      <Navbar />   
-      {/* Wrap Routes inside AnimatePresence */}
+      {/* Landing Modal Overlay: only shown for not logged in users */}
+      {showLanding && !token && <LandingPage onClose={handleCloseLanding} />}
+      
+      <Navbar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           {/* Home Page */}
@@ -50,7 +57,7 @@ function App() {
               </>
             }
           />
-         <Route
+          <Route
             path="/signup"
             element={
               <motion.div
@@ -63,7 +70,7 @@ function App() {
               </motion.div>
             }
           />
-            <Route
+          <Route
             path="/login"
             element={
               <motion.div
@@ -115,7 +122,7 @@ function App() {
               </motion.div>
             }
           />
-            <Route
+          <Route
             path="/book/:id/booknow"
             element={
               <motion.div
@@ -128,8 +135,6 @@ function App() {
               </motion.div>
             }
           />
-
-          {/* Play Page with Motion Animation */}
           <Route
             path="/play"
             element={
@@ -143,7 +148,7 @@ function App() {
               </motion.div>
             }
           />
-            <Route
+          <Route
             path="/book"
             element={
               <motion.div
@@ -156,7 +161,7 @@ function App() {
               </motion.div>
             }
           />
-           <Route
+          <Route
             path="/train"
             element={
               <motion.div
