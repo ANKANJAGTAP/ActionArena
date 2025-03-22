@@ -63,7 +63,7 @@ const Train = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/trainers?name=${searchQuery}`
+        `https://royal-dyanna-actionarena-5457ef91.koyeb.app/api/trainers?name=${searchQuery}`
       );
       setSearchResults(response.data);
       setSearchActive(true);
