@@ -191,7 +191,7 @@ app.get("/api/trainers", async (req, res) => {
 });
 app.get("/check-email", async (req, res) => {
   const email = req.query.email;
-  
+
   // Regular expression to validate email format
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
@@ -200,28 +200,13 @@ app.get("/check-email", async (req, res) => {
 
   const domain = email.split("@")[1];
 
-  // Check if domain has MX records
-  dns.resolveMx(domain, async (err, addresses) => {
-    if (err || !addresses || addresses.length === 0) {
-      return res.json({ valid: false, message: "Invalid email domain" });
-    }
-
-    // Create a test email transport to check deliverability
-    const transporter = nodemailer.createTransport({
-      host: addresses[0].exchange, // Using the first MX record
-      port: 25, // Standard SMTP port
-      secure: false, // False as we're not using encryption here
-      tls: { rejectUnauthorized: false } // Allows self-signed certs
-    });
-
-    // Verify the SMTP connection (does not send an email)
-    transporter.verify((error, success) => {
-      if (error) {
-        return res.json({ valid: false, message: "Email server unreachable" });
-      }
-      return res.json({ valid: true, message: "Valid email domain" });
-    });
-  });
+  try {
+    // Check if domain is accessible by making a request to it
+    await axios.get(`https://${domain}`);
+    return res.json({ valid: true, message: "Valid email domain" });
+  } catch (error) {
+    return res.json({ valid: false, message: "Invalid email domain" });
+  }
 });
 
 app.put('/profile', authMiddleware, async (req, res) => {
