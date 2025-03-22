@@ -30,7 +30,6 @@ export default function SignupForm() {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    console.log("Form Data:", data);
 
     // Validate city
     const isValidCity = await validateCity(data.city);
@@ -52,7 +51,7 @@ export default function SignupForm() {
     // Email Verification
     try {
       const emailCheckResponse = await fetch(
-        `https://actionarena.onrender.com/check-email?email=${encodeURIComponent(data.email)}`
+        `http://localhost:5000/check-email?email=${encodeURIComponent(data.email)}`
       );
       const emailCheckData = await emailCheckResponse.json();
 

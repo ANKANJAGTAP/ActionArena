@@ -193,20 +193,19 @@ app.get("/check-email", (req, res) => {
   const email = req.query.email;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(email)) {
-      return res.json({ valid: false, message: "Invalid email syntax" });
+    return res.json({ valid: false, message: "Invalid email syntax" });
   }
-
   const domain = email.split("@")[1];
   dns.resolveMx(domain, (err, addresses) => {
-      if (err || !addresses || addresses.length === 0) {
-          return res.json({ valid: false, message: "Invalid email domain" });
+    if (err || !addresses || addresses.length === 0) {
+      return res.json({ valid: false, message: "Invalid email domain" });
+    }
+    emailExistence.check(email, (error, exists) => {
+      if (error || !exists) {
+        return res.json({ valid: false, message: "Email does not exist" });
       }
-      emailExistence.check(email, (error, exists) => {
-          if (error || !exists) {
-              return res.json({ valid: false, message: "Email does not exist" });
-          }
-          return res.json({ valid: true, message: "Email exists" });
-      });
+      return res.json({ valid: true, message: "Email exists" });
+    });
   });
 });
 app.put('/profile', authMiddleware, async (req, res) => {
