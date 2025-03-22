@@ -51,7 +51,7 @@ export default function SignupForm() {
     // Email Verification
     try {
       const emailCheckResponse = await fetch(
-        `http://localhost:5000/check-email?email=${encodeURIComponent(data.email)}`
+        `https://actionarena.onrender.com/check-email?email=${encodeURIComponent(data.email)}`
       );
       const emailCheckData = await emailCheckResponse.json();
 
