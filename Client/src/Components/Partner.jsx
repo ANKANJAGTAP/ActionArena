@@ -1,11 +1,11 @@
 import React from "react";
 
 const corporateImages = [
-  "https://images.unsplash.com/photo-1592318343309-853bcb2213ad?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1592318343309-853bcb2213ad?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1592318343309-853bcb2213ad?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1592318343309-853bcb2213ad?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1592318343309-853bcb2213ad?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "https://cdn.ca.emap.com/wp-content/uploads/sites/9/2022/08/shutterstock_1757511395-WSP-scaled.jpg",
+  "https://playo-website.gumlet.io/playo-website-v3/corporate-partners/groww.png",
+  "https://playo-website.gumlet.io/playo-website-v3/corporate-partners/accenture.png",
+  "https://playo-website.gumlet.io/playo-website-v3/corporate-partners/deloitte.png",
+  "https://playo-website.gumlet.io/playo-website-v3/corporate-partners/swiggy.png",
 ];
 
 const corporatePartners = [
