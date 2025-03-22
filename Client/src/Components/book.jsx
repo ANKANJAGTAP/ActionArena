@@ -33,7 +33,7 @@ const Book = () => {
 
     const fetchVenues = async () => {
       try {
-        const response = await fetch("https://actionarena.onrender.com/bookvenues");
+        const response = await fetch("http://localhost:5000/bookvenues");
         if (!response.ok) {
           throw new Error("Failed to fetch venues");
         }
@@ -72,7 +72,7 @@ const Book = () => {
 
     try {
       const response = await axios.get(
-        `https://actionarena.onrender.com/api/book?name=${searchQuery}`
+        `http://localhost:5000/api/book?name=${searchQuery}`
       );
       setSearchResults(response.data);
       setSearchActive(true);

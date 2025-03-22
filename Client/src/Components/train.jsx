@@ -31,7 +31,7 @@ const Train = () => {
 
     const fetchTrainers = async () => {
       try {
-        const response = await fetch("https://actionarena.onrender.com/trainers");
+        const response = await fetch("http://localhost:5000/trainers");
         if (!response.ok) {
           throw new Error("Failed to fetch trainers");
         }

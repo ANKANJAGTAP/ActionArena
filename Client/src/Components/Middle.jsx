@@ -49,7 +49,7 @@ const Middle = () => {
   useEffect(() => {
     const fetchSports = async () => {
       try {
-        const response = await fetch("https://actionarena.onrender.com/sports");
+        const response = await fetch("http://localhost:5000/sports");
         if (!response.ok) {
           throw new Error("Failed to fetch sports");
         }
@@ -67,7 +67,7 @@ const Middle = () => {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await fetch("https://actionarena.onrender.com/descgames");
+        const response = await fetch("http://localhost:5000/descgames");
         if (!response.ok) {
           throw new Error("Failed to fetch games");
         }

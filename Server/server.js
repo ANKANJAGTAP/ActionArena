@@ -11,7 +11,7 @@ import bodyParser from 'body-parser';
 import loginRoute from './src/routes/login.js';
 import dns from 'dns';
 import emailExistence from 'email-existence';
-import authMiddleware from '../Server/src/Utils/authmiddleware.js'
+import authMiddleware from './src/Utils/authmiddleware.js'
 import { time } from "console";
 
 dotenv.config();
@@ -208,6 +208,7 @@ app.get("/check-email", (req, res) => {
     });
   });
 });
+
 app.put('/profile', authMiddleware, async (req, res) => {
   try {
       const updatedUser = await User.findOneAndUpdate(

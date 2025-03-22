@@ -36,11 +36,12 @@ function Profile() {
       return;
     }
 
-    fetch('https://actionarena.onrender.com/profile', {
+    fetch('http://localhost:5000/profile', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
         if (!response.ok) {
+          console.log(error.message);
           throw new Error('Failed to fetch profile');
         }
         return response.json();
@@ -66,7 +67,7 @@ function Profile() {
     const token = localStorage.getItem('token');
     console.log(token);
     try {
-      const response = await fetch('https://actionarena.onrender.com/profile', {
+      const response = await fetch('http://localhost:5000/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
