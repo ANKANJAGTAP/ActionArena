@@ -20,11 +20,11 @@ const corporatePartners = [
 
 const Partner = () => {
   return (
-    <div className="bg-gray-100 flex justify-center py-10 mt-16 rounded-3xl"> {/* Added margin-top */}
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-11/12 md:w-4/5 border border-gray-200"> {/* Enhanced styling */}
+    <div className="bg-gray-100 flex justify-center py-10 mt-16 rounded-3xl px-4 sm:px-6">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-4xl border border-gray-200">
         
         {/* Heading */}
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-6">
           Corporate Partnerships
         </h2>
 
@@ -35,19 +35,19 @@ const Partner = () => {
               key={index}
               src={img}
               alt={`Corporate Event ${index + 1}`}
-              className="rounded-lg w-64 h-40 object-cover flex-none"
+              className="rounded-lg w-56 sm:w-64 h-32 sm:h-40 object-cover flex-none"
             />
           ))}
         </div>
 
         {/* Partner Logos */}
-        <div className="grid grid-cols-4 sm:grid-cols-7 gap-6 mt-8 justify-items-center">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-4 mt-8 justify-items-center">
           {corporatePartners.map((partner, index) => (
             <img
               key={index}
               src={partner.logo}
               alt={partner.name}
-              className="h-10 object-contain"
+              className="h-8 sm:h-10 object-contain"
             />
           ))}
         </div>

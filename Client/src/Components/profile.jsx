@@ -36,7 +36,7 @@ function Profile() {
       return;
     }
 
-    fetch('http://localhost:5000/profile', {
+    fetch('https://actionarena.onrender.com/profile', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
@@ -66,7 +66,7 @@ function Profile() {
     const token = localStorage.getItem('token');
     console.log(token);
     try {
-      const response = await fetch('http://localhost:5000/profile', {
+      const response = await fetch('https://actionarena.onrender.com/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

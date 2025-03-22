@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaSearch } from "react-icons/fa";
-import {jwtDecode} from "jwt-decode"; 
+import {jwtDecode} from "jwt-decode";
 
 const Train = () => {
   const [trainers, setTrainers] = useState([]);
@@ -15,7 +15,6 @@ const Train = () => {
   // Fetch user city from token
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (token) {
       try {
         const decoded = jwtDecode(token);
@@ -32,13 +31,12 @@ const Train = () => {
 
     const fetchTrainers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/trainers");
+        const response = await fetch("https://actionarena.onrender.com/trainers");
         if (!response.ok) {
           throw new Error("Failed to fetch trainers");
         }
         const data = await response.json();
-        // Filter trainers based on the user's city
-        // Make sure that your trainer documents include a "city" property!
+        // Filter trainers based on the user's city (make sure trainer documents include a "city" property)
         const filteredTrainers = data.filter(
           (trainer) =>
             trainer.city &&
@@ -93,22 +91,24 @@ const Train = () => {
 
   if (loading)
     return (
-      <p className="text-center text-lg text-gray-600">Loading trainers...</p>
+      <p className="text-center text-lg text-gray-600 py-10">
+        Loading trainers...
+      </p>
     );
   if (error)
-    return <p className="text-center text-red-500">{error}</p>;
+    return <p className="text-center text-red-500 py-10">{error}</p>;
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Hero Section */}
-      <header className="relative bg-gradient-to-r from-green-400 to-blue-500 py-16 text-center text-white">
-        <h1 className="text-4xl font-bold mb-4">
+      <header className="relative bg-gradient-to-r from-green-400 to-blue-500 py-16 text-center text-white px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
           Sports Trainers in{" "}
           {city
             ? city.charAt(0).toUpperCase() + city.slice(1).toLowerCase()
             : "Loading..."}
         </h1>
-        <p className="text-lg mb-8">
+        <p className="text-lg sm:text-xl mb-8">
           Find professional coaches and academies to enhance your skills.
         </p>
 
@@ -163,7 +163,9 @@ const Train = () => {
           </div>
         ) : (
           <p className="text-center text-gray-500">
-            {searchActive ? "No search results found." : "No trainers available."}
+            {searchActive
+              ? "No search results found."
+              : "No trainers available."}
           </p>
         )}
       </main>

@@ -33,7 +33,7 @@ const Book = () => {
 
     const fetchVenues = async () => {
       try {
-        const response = await fetch("http://localhost:5000/bookvenues");
+        const response = await fetch("https://actionarena.onrender.com/bookvenues");
         if (!response.ok) {
           throw new Error("Failed to fetch venues");
         }
@@ -72,7 +72,7 @@ const Book = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/book?name=${searchQuery}`
+        `https://actionarena.onrender.com/api/book?name=${searchQuery}`
       );
       setSearchResults(response.data);
       setSearchActive(true);
@@ -99,21 +99,25 @@ const Book = () => {
   const displayVenues = searchActive ? searchResults : venues;
 
   if (loading)
-    return <p className="text-center text-lg text-gray-600">Loading venues...</p>;
+    return (
+      <p className="text-center text-lg text-gray-600 py-10">
+        Loading venues...
+      </p>
+    );
   if (error)
-    return <p className="text-center text-red-500">{error}</p>;
+    return <p className="text-center text-red-500 py-10">{error}</p>;
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Hero Section */}
-      <header className="relative bg-gradient-to-r from-green-400 to-blue-500 py-20 text-center text-white rounded-2xl">
-        <h1 className="text-4xl font-bold mb-4">
+      <header className="relative bg-gradient-to-r from-green-400 to-blue-500 py-20 text-center text-white rounded-2xl mx-4 sm:mx-8 lg:mx-16">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
           Discover &amp; Book Sports Venues in{" "}
           {city
             ? city.charAt(0).toUpperCase() + city.slice(1).toLowerCase()
             : "Loading..."}
         </h1>
-        <p className="text-lg mb-8">
+        <p className="text-lg sm:text-xl mb-8">
           Find the best venues to play, train, or just have fun.
         </p>
 
