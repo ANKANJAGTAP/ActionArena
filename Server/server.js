@@ -9,8 +9,6 @@ import User from './src/models/User.js';
 import signupRoute from './src/routes/Rsignup.js';
 import bodyParser from 'body-parser';
 import loginRoute from './src/routes/login.js';
-import dns from 'dns';
-import emailExistence from 'email-existence';
 import authMiddleware from './src/Utils/authmiddleware.js'
 import { time } from "console";
 
