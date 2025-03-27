@@ -9,11 +9,11 @@ const SanasBadmintonCourt = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [venue, setVenues] = useState(null);
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const response = await fetch(`https://royal-dyanna-actionarena-5457ef91.koyeb.app/bookvenues/${id}`);
+        const response = await fetch(`${backendUrl}/bookvenues/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch venue");
         }

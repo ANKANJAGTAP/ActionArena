@@ -10,9 +10,11 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const onSubmit = async (data) => {
     try {
-      const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/auth/login", {
+      const response = await fetch(`${backendUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

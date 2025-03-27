@@ -12,6 +12,8 @@ const Train = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchActive, setSearchActive] = useState(false);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   // Fetch user city from token
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,7 +33,7 @@ const Train = () => {
 
     const fetchTrainers = async () => {
       try {
-        const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/trainers");
+        const response = await fetch(`${backendUrl}/trainers`);
         if (!response.ok) {
           throw new Error("Failed to fetch trainers");
         }

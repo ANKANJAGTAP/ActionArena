@@ -10,6 +10,8 @@ const SportsComplexGrid = () => {
   const [error, setError] = useState(null);
   const [city, setCity] = useState("");
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   // Fetch user city from token
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,7 +31,7 @@ const SportsComplexGrid = () => {
 
     const fetchGames = async () => {
       try {
-        const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/descgames");
+        const response = await fetch(`${backendUrl}/descgames`);
         if (!response.ok) {
           throw new Error("Failed to fetch games");
         }

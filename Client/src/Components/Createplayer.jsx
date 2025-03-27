@@ -25,6 +25,7 @@ function CreatePlayer() {
   const [city, setCity] = useState("");
   const [userId, setUserId] = useState("");
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -43,7 +44,7 @@ function CreatePlayer() {
   useEffect(() => {
     const fetchFieldDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/fields/${fieldId}`);
+        const response = await fetch(`${backendUrl}/api/fields/${fieldId}`);
         const data = await response.json();
         if (response.ok) {
           setLocation(data.name);
@@ -132,7 +133,7 @@ function CreatePlayer() {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/playerrequest", {
+      const response = await fetch(`${backendUrl}/api/playerrequest`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

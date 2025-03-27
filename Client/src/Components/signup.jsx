@@ -10,6 +10,7 @@ export default function SignupForm() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const validateCity = async (city) => {
     try {
@@ -52,7 +53,7 @@ export default function SignupForm() {
     // Email Verification
     try {
       const emailCheckResponse = await fetch(
-        `https://royal-dyanna-actionarena-5457ef91.koyeb.app/check-email?email=${encodeURIComponent(data.email)}`
+        `${backendUrl}/check-email?email=${encodeURIComponent(data.email)}`
       );
       const emailCheckData = await emailCheckResponse.json();
 
@@ -69,7 +70,7 @@ export default function SignupForm() {
 
     // Proceed with user registration
     try {
-      const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/user/register", {
+      const response = await fetch(`${backendUrl}/user/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

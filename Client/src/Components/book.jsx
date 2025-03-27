@@ -15,6 +15,8 @@ const Book = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchActive, setSearchActive] = useState(false);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   // Fetch user city from token
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -34,7 +36,7 @@ const Book = () => {
 
     const fetchVenues = async () => {
       try {
-        const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/bookvenues");
+        const response = await fetch(`${backendUrl}/bookvenues`);
         if (!response.ok) {
           throw new Error("Failed to fetch venues");
         }
@@ -73,7 +75,7 @@ const Book = () => {
 
     try {
       const response = await axios.get(
-        `https://royal-dyanna-actionarena-5457ef91.koyeb.app/api/book?name=${searchQuery}`
+        `${backendUrl}/book?name=${searchQuery}`
       );
       setSearchResults(response.data);
       setSearchActive(true);

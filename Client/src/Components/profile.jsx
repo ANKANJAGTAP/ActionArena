@@ -18,6 +18,8 @@ function Profile() {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -36,7 +38,7 @@ function Profile() {
       return;
     }
 
-    fetch('https://royal-dyanna-actionarena-5457ef91.koyeb.app/profile', {
+    fetch(`${backendUrl}/profile`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {

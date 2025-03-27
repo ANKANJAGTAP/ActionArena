@@ -4,11 +4,11 @@ import { useParams } from "react-router-dom";
 const InnerPlay = () => {
   const { id } = useParams();
   const [game, setGame] = useState(null);
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchGame = async () => {
       try {
-        const response = await fetch(`https://royal-dyanna-actionarena-5457ef91.koyeb.app/descgames/${id}`);
+        const response = await fetch(`${backendUrl}/descgames/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch game");
         }

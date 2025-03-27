@@ -14,6 +14,8 @@ const BookField = () => {
   const [bookedSlots, setBookedSlots] = useState([]);
   const [fieldName, setFieldName] = useState("");
 
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -31,7 +33,7 @@ const BookField = () => {
   useEffect(() => {
     const fetchFieldDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/fields/${fieldId}`);
+        const response = await fetch(`${backendUrl}/api/fields/${fieldId}`);
         const data = await response.json();
         if (response.ok) {
           setFieldName(data.name);
@@ -58,7 +60,7 @@ const BookField = () => {
   const fetchBookedSlots = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/bookedslots?fieldId=${fieldId}&date=${date}`
+        `${backendUrl}/api/bookedslots?fieldId=${fieldId}&date=${date}`
       );
       const data = await response.json();
       if (response.ok) {
@@ -95,7 +97,7 @@ const BookField = () => {
       playersRequired: players,
     };
 
-    const response = await fetch("http://localhost:5000/api/booknow", {
+    const response = await fetch(`${backendUrl}/api/booknow`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

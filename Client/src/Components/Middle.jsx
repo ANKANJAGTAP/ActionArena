@@ -46,10 +46,12 @@ const Middle = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchSports = async () => {
       try {
-        const response = await fetch("https://royal-dyanna-actionarena-5457ef91.koyeb.app/sports");
+        const response = await fetch(`${backendUrl}/sports`);
         if (!response.ok) {
           throw new Error("Failed to fetch sports");
         }
