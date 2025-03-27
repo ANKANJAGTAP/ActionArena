@@ -85,6 +85,7 @@ const BookField = () => {
   const handleBooking = async () => {
     if (!userId || !date || !startTime || !endTime || !players) {
       toast.error("Please fill in all fields!");
+      navigate(`/play`);
       return;
     }
 
