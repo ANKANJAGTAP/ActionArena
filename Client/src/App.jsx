@@ -15,8 +15,9 @@ import Login from "./Components/login";
 import Profile from "./Components/profile";
 import InnerPlay from "./Components/innerplay";
 import InnerBook from "./Components/innerbook";
-import Booknow from "./Components/booksuccess";
-import LandingPage from "./Components/Landing"; // Landing modal component
+import Booknow from "./Components/booknow";
+import LandingPage from "./Components/Landing";
+import PlayerCreate from "./Components/Createplayer";
 
 function App() {
   const location = useLocation();
@@ -132,6 +133,19 @@ function App() {
                 transition={{ duration: 0.5 }}
               >
                 <Booknow />
+              </motion.div>
+            }
+          />
+           <Route
+            path="/book/:id/booknow/PlayerCreate"
+            element={
+              <motion.div
+                initial={{ opacity: 0, y: -100 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 100 }}
+                transition={{ duration: 0.5 }}
+              >
+                <PlayerCreate />
               </motion.div>
             }
           />

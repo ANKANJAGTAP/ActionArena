@@ -3,8 +3,10 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { FaStar, FaShareAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from'react-router-dom';
 
 const SanasBadmintonCourt = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [venue, setVenues] = useState(null);
 
@@ -57,7 +59,7 @@ const SanasBadmintonCourt = () => {
           <div className="flex flex-wrap justify-center gap-3">
             <button
               className="bg-blue-600 hover:bg-blue-700 transition duration-300 text-white py-2 px-4 sm:px-6 rounded-lg shadow"
-              onClick={() => window.location.href = "https://razorpay.me/@actionarena"}
+              onClick={() => navigate(`/book/${venue._id}/booknow`)}
             >
               Book Now
             </button>
