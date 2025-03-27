@@ -240,7 +240,7 @@ function CreatePlayer() {
                 name="endTime"
                 step="3600"
                 value={endTime}
-                onChange={handleTimeChange(setStartTime)}
+                onChange={handleTimeChange(setEndTime)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
