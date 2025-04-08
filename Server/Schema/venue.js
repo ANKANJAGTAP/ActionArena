@@ -7,7 +7,7 @@ const venueSchema = new mongoose.Schema({
   image: String,
   bookable: Boolean,
   time: String,
-  playersRequired: Number
+  cost:Number
 });
 const Venue = mongoose.model("Venue", venueSchema, "bookvenues");
 

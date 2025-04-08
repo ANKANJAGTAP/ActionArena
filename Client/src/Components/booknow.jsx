@@ -2,20 +2,40 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
+import "react-time-picker/dist/TimePicker.css";
+import TimePicker from "react-time-picker";
 
 const BookField = () => {
   const { id: fieldId } = useParams();
   const navigate = useNavigate();
   const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [startTime, setStartTime] = useState("10:00");
+  const [endTime, setEndTime] = useState("11:00");
   const [players, setPlayers] = useState("");
   const [userId, setUserId] = useState(null);
   const [bookedSlots, setBookedSlots] = useState([]);
   const [fieldName, setFieldName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [perHourCost, setPerHourCost] = useState(0);
+  const [price, setPrice] = useState(0);
 
+  const backendUrl = "http://localhost:5000"; // update if needed
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  // ✅ Load Razorpay script
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+  const hours = Array.from({ length: 24 }, (_, i) => {
+    const h = i.toString().padStart(2, "0");
+    return `${h}:00`;
+  });
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -37,6 +57,7 @@ const BookField = () => {
         const data = await response.json();
         if (response.ok) {
           setFieldName(data.name);
+          setPerHourCost(data.cost ||0);
         } else {
           toast.error(data.message || "Failed to fetch field details");
         }
@@ -52,9 +73,7 @@ const BookField = () => {
   }, [fieldId]);
 
   useEffect(() => {
-    if (date) {
-      fetchBookedSlots();
-    }
+    if (date) fetchBookedSlots();
   }, [date]);
 
   const fetchBookedSlots = async () => {
@@ -64,7 +83,7 @@ const BookField = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        setBookedSlots(data.slots);
+        setBookedSlots(data.slots); // Now correctly using data.slots
       } else {
         toast.error(data.message || "Failed to fetch booked slots");
       }
@@ -73,43 +92,117 @@ const BookField = () => {
       toast.error("Error fetching booked slots");
     }
   };
+  
 
-  const handleTimeChange = (setter) => (e) => {
-    let time = e.target.value;
-    if (time) {
-      let [hour] = time.split(":"); 
-      setter(`${hour}:00`); 
+  const computePrice = () => {
+    if (startTime && endTime && perHourCost) {
+      const [sHour, sMinute] = startTime.split(":").map(Number);
+      const [eHour, eMinute] = endTime.split(":").map(Number);
+      const startTotal = sHour * 60 + sMinute;
+      const endTotal = eHour * 60 + eMinute;
+      const diffMinutes = endTotal - startTotal;
+      if (diffMinutes > 0) {
+        return (diffMinutes / 60) * perHourCost;
+      }
     }
+    return 0;
   };
 
-  const handleBooking = async () => {
-    if (!userId || !date || !startTime || !endTime || !players) {
-      toast.error("Please fill in all fields!");
-      navigate(`/play`);
+  useEffect(() => {
+    setPrice(computePrice());
+  }, [startTime, endTime, perHourCost]);
+
+  // ✅ Razorpay Payment Handler
+  const handlePayment = async () => {
+    const isRazorpayLoaded = await loadRazorpayScript();
+    if (!isRazorpayLoaded) {
+      toast.error("Failed to load Razorpay SDK. Please check your internet.");
       return;
     }
 
-    const requestBody = {
-      userId,
-      sportsFieldId: fieldId,
-      date,
-      startTime,
-      endTime,
-      playersRequired: players,
-    };
+    if (!userId || !date || !startTime || !endTime || !players) {
+      toast.error("Please fill in all fields!");
+      return;
+    }
 
-    const response = await fetch(`${backendUrl}/api/booknow`, {
+    setLoading(true);
+    const currentPrice = computePrice();
+
+    const orderResponse = await fetch(`${backendUrl}/api/createOrder`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        amount: currentPrice * 100,
+        fieldId,
+        date,
+        startTime,
+        endTime,
+        players,
+        userId,
+      }),
     });
 
-    const data = await response.json();
-    toast(data.message);
-    fetchBookedSlots();
+    const orderData = await orderResponse.json();
+    if (!orderResponse.ok) {
+      toast.error(orderData.message || "Order creation failed");
+      setLoading(false);
+      return;
+    }
+
+    const options = {
+      key: "rzp_test_DdNb4pPxdAKQyu",
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: fieldName,
+      description: "Field Booking Payment",
+      order_id: orderData.id,
+      handler: async (response) => {
+        const verifyResponse = await fetch(`${backendUrl}/api/verifyPayment`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            orderCreationId: orderData.id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpaySignature: response.razorpay_signature,
+            fieldId,
+            date,
+            startTime,
+            endTime,
+            players,
+            userId,
+            paidAmount: currentPrice,
+            bookingId: orderData.bookingId,
+          }),
+        });
+
+        const verifyData = await verifyResponse.json();
+        if (verifyResponse.ok) {
+          toast("Payment successful and booking updated!");
+          navigate("/booking-success");
+        } else {
+          toast.error(verifyData.message || "Payment verification failed");
+        }
+        setLoading(false);
+      },
+      prefill: {
+        name: "",
+        email: "",
+        contact: "",
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
   };
 
   const handleCreateRequest = () => {
@@ -122,14 +215,12 @@ const BookField = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 pt-24">
-      {/* Field Title Section */}
       <div className="max-w-3xl mx-auto mb-8 text-center">
         <h1 className="text-4xl font-bold text-gray-800">
           {fieldName ? `Booking for ${fieldName}` : "Loading Field Details..."}
         </h1>
       </div>
 
-      {/* Booked Slots Section */}
       <div className="max-w-3xl mx-auto mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           {date ? `Booked Slots on ${date}` : "Select a date to view booked slots"}
@@ -153,9 +244,10 @@ const BookField = () => {
         )}
       </div>
 
-      {/* Booking Form Section */}
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md mx-auto">
-        <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">Book a Sports Field</h2>
+        <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">
+          Book a Sports Field
+        </h2>
         <div className="space-y-6">
           <div>
             <label className="block text-gray-600 font-medium mb-2">Date</label>
@@ -168,27 +260,36 @@ const BookField = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row sm:space-x-4">
-            <div className="sm:w-1/2">
-              <label className="block text-gray-600 font-medium mb-2">Start Time</label>
-              <input
-                type="time"
-                step="3600"
-                value={startTime}
-                onChange={handleTimeChange(setStartTime)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="sm:w-1/2 mt-4 sm:mt-0">
-              <label className="block text-gray-600 font-medium mb-2">End Time</label>
-              <input
-                type="time"
-                step="3600"
-                value={endTime}
-                onChange={handleTimeChange(setEndTime)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+      <div className="sm:w-1/2">
+        <label className="block text-gray-600 font-medium mb-2">Start Time</label>
+        <select
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {hours.map((hour) => (
+            <option key={hour} value={hour}>
+              {hour}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="sm:w-1/2 mt-4 sm:mt-0">
+        <label className="block text-gray-600 font-medium mb-2">End Time</label>
+        <select
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {hours.map((hour) => (
+            <option key={hour} value={hour}>
+              {hour}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
 
           <div>
             <label className="block text-gray-600 font-medium mb-2">Number of Players Going</label>
@@ -202,10 +303,11 @@ const BookField = () => {
           </div>
 
           <button
-            onClick={handleBooking}
+            onClick={handlePayment}
+            disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300 shadow-md"
           >
-            Book Now
+            {loading ? "Processing..." : `Pay ₹${price}`}
           </button>
 
           <button

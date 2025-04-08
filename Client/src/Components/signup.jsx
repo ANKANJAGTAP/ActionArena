@@ -31,7 +31,6 @@ export default function SignupForm() {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    console.log("Form Data:", data);
 
     // Validate city
     const isValidCity = await validateCity(data.city);

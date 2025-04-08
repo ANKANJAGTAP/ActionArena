@@ -38,7 +38,7 @@ const Home = () => {
         <div>
           {isLoggedIn ? (
             <button
-              onClick={() => navigate("/explore")}
+              onClick={() => navigate("/play")}
               className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-full shadow-lg transition duration-300"
             >
               Explore Games

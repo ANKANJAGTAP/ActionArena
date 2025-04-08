@@ -18,6 +18,7 @@ import Game from "./Schema/gameschema.js";
 import Sport from "./Schema/sports.js";
 import Venue from "./Schema/venue.js";
 import Booking from "./Schema/bookingschema.js";
+import Razorpay from "razorpay";
 
 dotenv.config();
 
@@ -36,9 +37,17 @@ app.use(express.json());
 app.use(bodyParser.json());
 connectDB();
 
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID, // Set this in your environment
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
 // API Routes
 app.use('/user',signupRoute);
 app.use('/auth',loginRoute);
+
+
 
 app.get("/trainers", async (req, res) => {
   try {
@@ -199,7 +208,7 @@ app.get("/api/bookedslots", async (req, res) => {
           return res.status(400).json({ message: "Field ID and date are required." });
       }
       
-      const slots = await Booking.find({ sportsFieldId: fieldId, date }).select("startTime endTime -_id");
+      const slots = await Booking.find({ fieldId: fieldId, date }).select("startTime endTime -_id");
       res.status(200).json({ slots });
   } catch (error) {
       console.error("Error fetching booked slots:", error);
@@ -217,13 +226,46 @@ app.get("/api/fields/:id", async (req, res) => {
     res.status(200).json({ 
       name: venue.name,
       location: venue.location,     
-      capacity: venue.capacity    
+      capacity: venue.capacity,
+      cost: venue.cost    
     });
   } catch (error) {
     console.error("Error fetching field details:", error);
     res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
+
+app.get("/api/bookings/latest/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const latestBooking = await Booking.findOne({ userId })
+      .sort({ createdAt: -1 })
+      .populate("fieldId", "name") // This will now populate from the Venue collection
+      .lean();
+
+    if (!latestBooking) {
+      return res.status(404).json({ message: "No booking found." });
+    }
+
+    const bookingDetails = {
+      fieldName: latestBooking.fieldId?.name || "N/A",
+      date: latestBooking.date,
+      startTime: latestBooking.startTime,
+      endTime: latestBooking.endTime,
+      players: latestBooking.players,
+      paidAmount: latestBooking.paidAmount,
+    };
+
+    res.status(200).json({ booking: bookingDetails });
+  } catch (error) {
+    console.error("Error fetching latest booking:", error);
+    res.status(500).json({ message: "Server error. Please try again later." });
+  }
+});
+
+
+
 
 
 
@@ -244,51 +286,97 @@ app.put('/profile', authMiddleware, async (req, res) => {
       res.status(500).json({ message: err.message });
   }
 });
-app.post("/api/booknow", async (req, res) => {
+app.post("/api/createOrder", async (req, res) => {
   try {
-      const { userId, sportsFieldId, date, startTime, endTime, playersRequired } = req.body;
+    const { amount, fieldId, date, startTime, endTime, players, userId } = req.body;
+    if (!amount || !fieldId || !date || !startTime || !endTime || !players || !userId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    
+    // Order options for Razorpay
+    const options = {
+      amount: amount, // in paise
+      currency: "INR",
+      receipt: `receipt_order_${Math.random().toString(36).substring(7)}`,
+      payment_capture: 1,
+    };
 
-  
-      if (!userId || !sportsFieldId || !date || !startTime || !endTime || playersRequired === undefined) {
-          return res.status(400).json({ message: "All fields are required!" });
-      }
+    // Create order with Razorpay
+    const order = await razorpay.orders.create(options);
 
-      const parsedStartTime = new Date(`${date}T${startTime}:00.000Z`);
-      const parsedEndTime = new Date(`${date}T${endTime}:00.000Z`);
+    // Create a new Booking document (pending payment)
+    const newBooking = new Booking({
+      userId,
+      fieldId,
+      date,
+      startTime,
+      endTime,
+      players,
+      paidAmount: 0,
+      paymentStatus: "pending",
+      razorpayOrderId: order.id,
+    });
+    await newBooking.save();
 
-      if (parsedEndTime <= parsedStartTime) {
-          return res.status(400).json({ message: "End time must be after start time!" });
-      }
-
-      const existingBooking = await Booking.findOne({
-          sportsFieldId,
-          date,
-          $or: [
-              { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
-          ]
-      });
-
-      if (existingBooking) {
-          return res.status(400).json({ message: "Time slot already booked!" });
-      }
-
-      // Create and save the new booking, including the playersRequired field.
-      const newBooking = new Booking({
-          userId,
-          sportsFieldId,
-          date,
-          startTime,
-          endTime,
-          playersRequired, // Save the number of players required
-          status: "confirmed"
-      });
-
-      await newBooking.save();
-      res.status(201).json({ message: "Booking confirmed!" });
-
+    return res.json({
+      id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      bookingId: newBooking._id,
+    });
   } catch (error) {
-      console.error("Booking Error:", error);
-      res.status(500).json({ message: "Server error. Please try again later!" });
+    console.error("Error creating Razorpay order:", error);
+    return res.status(500).json({ message: "Error creating order" });
+  }
+});
+
+app.post("/api/verifyPayment", async (req, res) => {
+  try {
+    const {
+      orderCreationId,
+      razorpayPaymentId,
+      razorpayOrderId,
+      razorpaySignature,
+      fieldId,
+      date,
+      startTime,
+      endTime,
+      players,
+      userId,
+      paidAmount,
+      bookingId,
+    } = req.body;
+
+    // Generate signature using orderCreationId and razorpayPaymentId
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(orderCreationId + "|" + razorpayPaymentId)
+      .digest("hex");
+
+    if (generatedSignature !== razorpaySignature) {
+      return res.status(400).json({ message: "Invalid signature, payment not verified" });
+    }
+
+    // Update booking document with payment details
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      bookingId,
+      {
+        paidAmount,
+        paymentStatus: "paid",
+        razorpayPaymentId,
+        razorpaySignature,
+      },
+      { new: true }
+    );
+
+    if (!updatedBooking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    return res.json({ message: "Payment verified and booking updated successfully" });
+  } catch (error) {
+    console.error("Error verifying payment:", error);
+    return res.status(500).json({ message: "Payment verification failed" });
   }
 });
 app.post("/api/playerrequest", async (req, res) => {

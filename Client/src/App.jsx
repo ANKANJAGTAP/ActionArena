@@ -18,6 +18,7 @@ import InnerBook from "./Components/innerbook";
 import Booknow from "./Components/booknow";
 import LandingPage from "./Components/Landing";
 import PlayerCreate from "./Components/Createplayer";
+import Booksuccess from "./Components/booksuccessfull";
 
 function App() {
   const location = useLocation();
@@ -185,6 +186,19 @@ function App() {
                 transition={{ duration: 0.5 }}
               >
                 <Train />
+              </motion.div>
+            }
+          />
+          <Route
+            path="/booking-success"
+            element={
+              <motion.div
+                initial={{ opacity: 0, y: -100 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 100 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Booksuccess />
               </motion.div>
             }
           />
