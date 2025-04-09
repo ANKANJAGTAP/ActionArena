@@ -7,7 +7,7 @@ const BookingSuccess = () => {
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const backendUrl = "http://localhost:5000"; // Adjust as needed
+  const backendUrl = import.meta.env.VITE_BACKEND_URL; // Adjust as needed
 
   useEffect(() => {
     const fetchBooking = async () => {

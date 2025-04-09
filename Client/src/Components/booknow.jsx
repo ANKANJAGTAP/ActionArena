@@ -19,8 +19,7 @@ const BookField = () => {
   const [perHourCost, setPerHourCost] = useState(0);
   const [price, setPrice] = useState(0);
 
-  const backendUrl = "http://localhost:5000"; // update if needed
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   // ✅ Load Razorpay script
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
