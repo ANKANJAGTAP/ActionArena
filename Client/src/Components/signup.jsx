@@ -49,24 +49,6 @@ export default function SignupForm() {
       return;
     }
 
-    // Email Verification
-    try {
-      const emailCheckResponse = await fetch(
-        `${backendUrl}/check-email?email=${encodeURIComponent(data.email)}`
-      );
-      const emailCheckData = await emailCheckResponse.json();
-
-      if (!emailCheckData.valid) {
-        toast.error(emailCheckData.message || "Invalid email address.");
-        setLoading(false);
-        return;
-      }
-    } catch (error) {
-      toast.error("Error verifying email.");
-      setLoading(false);
-      return;
-    }
-
     // Proceed with user registration
     try {
       const response = await fetch(`${backendUrl}/user/register`, {
@@ -77,7 +59,7 @@ export default function SignupForm() {
 
       const result = await response.json();
       if (response.ok) {
-        toast.success("User created successfully!", { autoClose: 2000 });
+        toast.success("Verification email sent successfully!", { autoClose: 2000 });
         setTimeout(() => navigate("/login"), 2500);
       } else {
         toast.error(result.message || "Registration failed");

@@ -38,7 +38,7 @@ function Profile() {
       return;
     }
 
-    fetch(`${backendUrl}/profile`, {
+    fetch(`${backendUrl}/getprofile`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {
@@ -67,9 +67,8 @@ function Profile() {
 
   const handleSave = async () => {
     const token = localStorage.getItem('token');
-    console.log(token);
     try {
-      const response = await fetch('https://royal-dyanna-actionarena-5457ef91.koyeb.app/profile', {
+      const response = await fetch(`${backendUrl}/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -77,21 +76,27 @@ function Profile() {
         },
         body: JSON.stringify(formData)
       });
+  
+      const text = await response.text();  
       if (!response.ok) {
-        throw new Error('Error updating profile');
+        throw new Error(text || 'Error updating profile');
       }
-      const updatedUser = await response.json();
-      setUser(updatedUser);
-      setFormData(updatedUser);
+      const result = JSON.parse(text); 
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+      }
+  
+      setUser(result.user);
+      setFormData(result.user);
       setEditing(false);
       toast.success('Profile updated successfully');
-      localStorage.removeItem('token');  // Clear token
-        navigate('/login');
-
+      navigate('/');
     } catch (err) {
+      console.error('Profile update failed:', err.message);
       toast.error(err.message || 'Failed to update profile');
     }
   };
+  
 
   if (loading) {
     return (

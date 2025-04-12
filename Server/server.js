@@ -19,6 +19,7 @@ import Sport from "./Schema/sports.js";
 import Venue from "./Schema/venue.js";
 import Booking from "./Schema/bookingschema.js";
 import Razorpay from "razorpay";
+import { secretKey } from './src/config/jwtConfig.js';
 
 dotenv.config();
 
@@ -102,19 +103,21 @@ app.get("/bookvenues/:id", async (req, res) => {
 
   }
 });
-app.get('/profile', authMiddleware, async (req, res) => {
+
+app.get("/getprofile", authMiddleware, async (req, res) => {
   try {
-      const user = await User.findOne({ email: req.user.email });
-
-      if (!user) {
-          return res.status(404).json({ message: 'User not found' });
-      }
-
-      res.json(user);
+    // Use email from token to find the user
+    const user = await User.findOne({ email: req.user.email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
   } catch (err) {
-      res.status(500).json({ message: err.message });
+    console.error("Error in /getprofile route:", err.message);
+    res.status(500).json({ message: err.message });
   }
 });
+
 app.get("/api/book", async (req, res) => {
   try {
     const { name } = req.query; // ✅ Extract name
@@ -161,44 +164,6 @@ app.get("/api/trainers", async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching Trainers:", error);
     res.status(500).json({ message: "Server Error" });
-  }
-});
-app.get("/check-email", async (req, res) => {
-  const email = req.query.email;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!emailRegex.test(email)) {
-    return res.json({ valid: false, message: "Invalid email syntax" });
-  }
-  const verificationToken = crypto.randomBytes(16).toString("hex");
-  
-  emailVerificationTokens[email] = verificationToken;
-
-  const transporter = nodemailer.createTransport({
-    host: "smtp-relay.brevo.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD
-    }
-  });
-
-  const mailOptions = {
-    from: '"ActionArena" <881bb8002@smtp-brevo.com>',
-    to: email,
-    subject: "Please verify your email address",
-    text: `Hello,\n\nPlease verify your email address by clicking the link below:\n\n` +
-          `https://yourapp.com/verify-email?email=${encodeURIComponent(email)}&token=${verificationToken}\n\n` +
-          `If you did not sign up for this account, please ignore this email.\n\nThanks!`
-  };
-  
-
-  try {
-    await transporter.sendMail(mailOptions);
-    return res.json({ valid: true, message: "Verification email sent. Please check your inbox." });
-  } catch (error) {
-    console.error("Error sending email:", error.message);
-    return res.json({ valid: false, message: "Failed to send verification email." });
   }
 });
 app.get("/api/bookedslots", async (req, res) => {
@@ -264,26 +229,35 @@ app.get("/api/bookings/latest/:userId", async (req, res) => {
   }
 });
 
-
-
-
-
-
 app.put('/profile', authMiddleware, async (req, res) => {
   try {
-      const updatedUser = await User.findOneAndUpdate(
-          { email: req.user.email },
-          req.body,
-          { new: true, runValidators: true }
-      );
+    const updatedUser = await User.findOneAndUpdate(
+      { email: req.user.email },
+      req.body,
+      { new: true, runValidators: true }
+    );
 
-      if (!updatedUser) {
-          return res.status(404).json({ message: 'User profile not found' });
-      }
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User profile not found' });
+    }
+    const updatedTokenPayload = {
+      id: updatedUser._id,
+      email: updatedUser.email,
+      city: updatedUser.city,
+      role: updatedUser.role,
+    };
 
-      res.json(updatedUser);
+    const updatedToken = jwt.sign(updatedTokenPayload, secretKey, {
+      expiresIn: '1h',
+    });
+    return res.status(200).json({
+      message: 'Profile updated successfully',
+      token: updatedToken,
+      user: updatedUser,
+    });
   } catch (err) {
-      res.status(500).json({ message: err.message });
+    console.error('Profile update error:', err);
+    res.status(500).json({ message: err.message });
   }
 });
 app.post("/api/createOrder", async (req, res) => {
