@@ -1,16 +1,13 @@
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 import connectDB from "./config/connectDB.js";
-import  bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from './src/models/User.js';
 import signupRoute from './src/routes/Rsignup.js';
 import bodyParser from 'body-parser';
 import loginRoute from './src/routes/login.js';
 import authMiddleware from './src/Utils/authmiddleware.js';
-import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { time } from "console";
 import Trainer from "./Schema/trainer.js";
@@ -20,6 +17,7 @@ import Venue from "./Schema/venue.js";
 import Booking from "./Schema/bookingschema.js";
 import Razorpay from "razorpay";
 import { secretKey } from './src/config/jwtConfig.js';
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -263,24 +261,19 @@ app.put('/profile', authMiddleware, async (req, res) => {
 app.post("/api/createOrder", async (req, res) => {
   try {
     const { amount, fieldId, date, startTime, endTime, players, userId } = req.body;
+
     if (!amount || !fieldId || !date || !startTime || !endTime || !players || !userId) {
       return res.status(400).json({ message: "Missing required fields" });
     }
-    
-    // Order options for Razorpay
     const options = {
-      amount: amount, // in paise
+      amount: amount,
       currency: "INR",
       receipt: `receipt_order_${Math.random().toString(36).substring(7)}`,
       payment_capture: 1,
     };
-
-    // Create order with Razorpay
     const order = await razorpay.orders.create(options);
-
-    // Create a new Booking document (pending payment)
     const newBooking = new Booking({
-      userId,
+      userId: userId,
       fieldId,
       date,
       startTime,
@@ -290,6 +283,7 @@ app.post("/api/createOrder", async (req, res) => {
       paymentStatus: "pending",
       razorpayOrderId: order.id,
     });
+    
     await newBooking.save();
 
     return res.json({
